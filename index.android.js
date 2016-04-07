@@ -17,6 +17,9 @@ import {
   BRIUM_WORKER_ID
 } from './credentials';
 
+import KeywordsList from './keywords';
+import CurrentActivity from './currentActivity';
+
 require("./array");
 
 const ENTRIES_URL = `https://brium.me/api/entries.json?worker_id=${BRIUM_WORKER_ID}&since=2016-04-01&access_token=${BRIUM_TOKEN}`;
@@ -29,29 +32,8 @@ let styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
     padding: 10
-  },
-  currentActivity: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center'
-  },
-  currentActivityKeyword: {
-    fontSize: 24
   }
 });
-
-styles.keyword = StyleSheet.create({
-  item: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 6
-  },
-  name: {
-  },
-  list: {
-    flex: 1
-  }
-})
 
 class BriumClient extends Component {
   constructor(props) {
@@ -128,55 +110,6 @@ class BriumClient extends Component {
       </View>
     );
   }
-}
-
-class CurrentActivity extends Component {
-
-  render() {
-    if (!this.props.activity.loaded) {
-      return <View></View>;
-    }
-
-    return (
-      <View style={styles.container}>
-        <Text style={styles.currentActivity}>Working on</Text>
-        <Text style={styles.currentActivity, styles.currentActivityKeyword}>{this.props.activity.keyword}</Text>
-        <Text style={styles.currentActivity}>since {this.props.activity.timeAgo}</Text>
-      </View>
-    );
-  }
-
-}
-
-class KeywordsList extends Component {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      dataSource: new ListView.DataSource({
-        rowHasChanged: (row1, row2) => row1 !== row2
-      }).cloneWithRows(props.keywords)
-    };
-  }
-
-  render() {
-    return (
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this.renderKeyword}
-        style={styles.keyword.list}
-      />
-    );
-  }
-
-  renderKeyword(keyword) {
-    return (
-      <View style={styles.keyword.item}>
-        <Text style={styles.keyword.name}>{keyword}</Text>
-      </View>
-    );
-  }
-
 }
 
 AppRegistry.registerComponent('BriumClient', () => BriumClient);
