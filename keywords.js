@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     padding: 20,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#A2D0EC',
     borderBottomWidth: 1,
     backgroundColor: '#fff'
   },
