@@ -3,7 +3,8 @@ import React, {
   StyleSheet,
   Text,
   ListView,
-  View
+  View,
+  TouchableHighlight
 } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -34,7 +35,7 @@ export default class KeywordsList extends Component {
     return (
       <ListView
         dataSource={this.state.dataSource}
-        renderRow={this.renderKeyword}
+        renderRow={this.renderKeyword.bind(this)}
         style={styles.list}
       />
     );
@@ -42,9 +43,11 @@ export default class KeywordsList extends Component {
 
   renderKeyword(keyword) {
     return (
-      <View style={styles.item}>
-        <Text style={styles.name}>{keyword}</Text>
-      </View>
+      <TouchableHighlight onPress={() => this.props.onReport ? this.props.onReport(keyword) : null}>
+        <View style={styles.item}>
+          <Text style={styles.name}>{keyword}</Text>
+        </View>
+      </TouchableHighlight>
     );
   }
 
