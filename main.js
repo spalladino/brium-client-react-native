@@ -67,6 +67,7 @@ export default class BriumClient extends Component {
       .then((activity) => this.setState({
         currentActivity: {
           loaded: true,
+          lunch: activity ? activity.lunch : false,
           keyword: activity ? activity.keyword : null,
           timeAgo: activity ? activity.timeAgo : null
         }
@@ -75,12 +76,22 @@ export default class BriumClient extends Component {
   }
 
   fetchCurrentActivity() {
-    const currentActivityRegex = /You said you were working on (.+?)\s*((?:about |less than )?(?:\d+|\s*an?)\s*(?:minutes?|hours?)\s*ago)/;
+    const workingRegex = /You said you were working on (.+?)\s*((?:about |less than )?(?:\d+|\s*an?)\s*(?:minutes?|hours?)\s*ago)/;
+    const havingLunchRegex = /You said you are having lunch ((?:about |less than )?(?:\d+|\s*an?)\s*(?:minutes?|hours?)\s*ago)/;
+    const saidByeRegex = /You said bye ((?:about |less than )?(?:\d+|\s*an?)\s*(?:minutes?|hours?)\s*ago)/;
     return this.sendMessage('?')
       .then((response) => {
         log(response.split("\n")[0]);
-        let match = response.match(currentActivityRegex);
-        return match ? { keyword: match[1], timeAgo: match[2] } : null;
+        let match = response.match(workingRegex);
+        if (match) {
+          return { keyword: match[1], timeAgo: match[2] };
+        } else if (match = response.match(havingLunchRegex)) {
+          return { lunch: true, timeAgo: match[1] };
+        } else if (match = response.match(saidByeRegex)) {
+          return { timeAgo: match[1] };
+        } else {
+          return null;
+        }
       });
   }
 
@@ -122,6 +133,9 @@ export default class BriumClient extends Component {
       return this.renderLoadingView();
     }
     let currentActivity = <CurrentActivity activity={this.state.currentActivity} />;
+    let actionsBar = this.state.currentActivity ?
+          <Actions currentActivity={this.state.currentActivity} onReport={this.handleReport.bind(this)}/>
+          : null;
     return (
       <View style={styles.container}>
         <KeywordsList keywords={this.state.keywords}
@@ -129,7 +143,7 @@ export default class BriumClient extends Component {
                       onRefresh={this.handleRefresh.bind(this)}
                       refreshing={this.state.refreshing}
                       header={currentActivity}/>
-        <Actions onReport={this.handleReport.bind(this)}/>
+        {actionsBar}
       </View>
     );
   }

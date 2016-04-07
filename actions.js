@@ -11,14 +11,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   lunchButton: {
-    flex: 1,
-    backgroundColor: 'orange'
+    backgroundColor: '#efa300'
   },
   byeButton: {
-    flex: 1,
-    backgroundColor: 'green'
+    backgroundColor: '#64a91a'
+  },
+  backToWorkButton: {
+    backgroundColor: '#efa300'
   },
   button: {
+    flex: 1,
     padding: 15,
   },
   buttonText: {
@@ -31,6 +33,27 @@ const styles = StyleSheet.create({
 
 export default class Actions extends Component {
   render() {
+    if (this.props.currentActivity.lunch) {
+      return this.renderBackToWork();
+    } else if (this.props.currentActivity.keyword) {
+      return this.renderLunchBye();
+    } else {
+      return <View/>;
+    }
+  }
+
+  renderBackToWork() {
+    return (
+      <View style={styles.container}>
+        <TouchableHighlight onPress={this.onBackToWork.bind(this)}
+                            style={[styles.button, styles.backToWorkButton]}>
+          <Text style={styles.buttonText}>Back to work</Text>
+        </TouchableHighlight>
+      </View>
+    );
+  }
+
+  renderLunchBye() {
     return (
         <View style={styles.container}>
           <TouchableHighlight onPress={this.onLunch.bind(this)}
@@ -54,6 +77,12 @@ export default class Actions extends Component {
   onBye() {
     if (this.props.onReport) {
       this.props.onReport({name: 'bye'});
+    }
+  }
+
+  onBackToWork() {
+    if (this.props.onReport) {
+      this.props.onReport({name: '.'});
     }
   }
 }
