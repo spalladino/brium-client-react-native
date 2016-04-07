@@ -19,6 +19,7 @@ import {
 
 import KeywordsList from './keywords';
 import CurrentActivity from './currentActivity';
+import Actions from './actions';
 
 require("./array");
 
@@ -128,6 +129,7 @@ export default class BriumClient extends Component {
                       onRefresh={this.handleRefresh.bind(this)}
                       refreshing={this.state.refreshing}
                       header={currentActivity}/>
+        <Actions onReport={this.handleReport.bind(this)}/>
       </View>
     );
   }
