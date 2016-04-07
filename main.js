@@ -8,8 +8,8 @@ import React, {
   Component,
   StyleSheet,
   Text,
-  ListView,
-  View
+  View,
+  ProgressBarAndroid
 } from 'react-native';
 
 import {
@@ -22,7 +22,7 @@ import CurrentActivity from './currentActivity';
 
 require("./array");
 
-const ENTRIES_URL = `https://brium.me/api/entries.json?worker_id=${BRIUM_WORKER_ID}&since=2015-04-01&access_token=${BRIUM_TOKEN}`;
+const ENTRIES_URL = `https://brium.me/api/entries.json?worker_id=${BRIUM_WORKER_ID}&since=2016-03-30&access_token=${BRIUM_TOKEN}`;
 const MESSAGE_URL = `https://brium.me/api/messages?access_token=${BRIUM_TOKEN}`;
 
 const log = (msg) => console.log(`${Math.round(new Date().getTime() /1000)} | ${msg}`);
@@ -83,11 +83,23 @@ export default class BriumClient extends Component {
       });
   }
 
+  extractKeywords(entries) {
+    let today = new Date().toISOString().slice(0,10);
+    let keywords = entries.map((e) => e.record).reverse().unique();
+    let hours = entries.reduce((hs, e) => {
+      if (e.worked_at == today) {
+        hs[e.record] = (hs[e.record] || 0) + e.hours;
+      }
+      return hs;
+    }, {});
+    return keywords.map((k) => {return {name: k, hours: hours[k]}; });
+  }
+
   loadKeywords() {
     return this.fetchEntries()
       .then((responseData) => {
         this.setState({
-          keywords: responseData.map((e) => e.record).reverse().unique().slice(0,10),
+          keywords: this.extractKeywords(responseData),
           loaded: true,
         });
       });
@@ -117,15 +129,16 @@ export default class BriumClient extends Component {
   renderLoadingView() {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
-        <Text>Loading your recent activities</Text>
+        <ProgressBarAndroid indeterminate={true}/>
+        <Text>Loading your recent activities...</Text>
       </View>
     );
   }
 
   handleReport(keyword) {
-    log(`Reporting ${keyword}`);
+    log(`Reporting ${keyword.name}`);
     this.setState({refreshing: true});
-    this.sendMessage(keyword)
+    this.sendMessage(keyword.name)
       .then(this.loadCurrentActivity.bind(this))
       .then(() => this.setState({refreshing: false}))
       .done();
