@@ -22,7 +22,7 @@ import CurrentActivity from './currentActivity';
 
 require("./array");
 
-const ENTRIES_URL = `https://brium.me/api/entries.json?worker_id=${BRIUM_WORKER_ID}&since=2016-03-30&access_token=${BRIUM_TOKEN}`;
+const ENTRIES_URL = `https://brium.me/api/entries.json?worker_id=${BRIUM_WORKER_ID}&since=SINCE&access_token=${BRIUM_TOKEN}`;
 const MESSAGE_URL = `https://brium.me/api/messages?access_token=${BRIUM_TOKEN}`;
 
 const log = (msg) => console.log(`${Math.round(new Date().getTime() /1000)} | ${msg}`);
@@ -105,8 +105,14 @@ export default class BriumClient extends Component {
       });
   }
 
+  lastWeekEntriesUrl(today) {
+    let sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 3600 * 1000);
+    let sevenDaysAgoDate = sevenDaysAgo.toISOString().slice(0,10);
+    return ENTRIES_URL.replace('SINCE', sevenDaysAgoDate);
+  }
+
   fetchEntries() {
-    return fetch(ENTRIES_URL)
+    return fetch(this.lastWeekEntriesUrl(new Date()))
       .then((response) => response.json());
   }
 
