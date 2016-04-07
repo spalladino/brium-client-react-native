@@ -30,10 +30,11 @@ const log = (msg) => console.log(`${Math.round(new Date().getTime() /1000)} | ${
 let styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F5FCFF'
+  },
+  loadingContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-    padding: 10
+    alignItems: 'center'
   }
 });
 
@@ -115,7 +116,7 @@ export default class BriumClient extends Component {
 
   renderLoadingView() {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, styles.loadingContainer]}>
         <Text>Loading your recent activities</Text>
       </View>
     );

@@ -13,10 +13,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 6
+    padding: 15
   },
   name: {
-    textAlign: 'center'
+    // textAlign: 'center'
   },
   list: {
     flex: 1

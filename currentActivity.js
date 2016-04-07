@@ -10,17 +10,19 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: 'bold',
     fontSize: 16,
-    textAlign: 'center'
+    textAlign: 'center',
+    color: '#fff'
   },
   keyword: {
     fontSize: 24
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    alignSelf: 'stretch',
     alignItems: 'center',
     paddingTop: 10,
-    paddingBottom: 20
+    paddingBottom: 20,
+    backgroundColor: '#888'
   }
 });
 
@@ -34,7 +36,7 @@ export default class CurrentActivity extends Component {
     return (
       <View style={styles.container}>
         <Text style={styles.label}>Working on</Text>
-        <Text style={styles.label, styles.keyword}>{this.props.activity.keyword}</Text>
+        <Text style={[styles.label, styles.keyword]}>{this.props.activity.keyword}</Text>
         <Text style={styles.label}>since {this.props.activity.timeAgo}</Text>
       </View>
     );
