@@ -22,7 +22,7 @@ import CurrentActivity from './currentActivity';
 
 require("./array");
 
-const ENTRIES_URL = `https://brium.me/api/entries.json?worker_id=${BRIUM_WORKER_ID}&since=2016-04-01&access_token=${BRIUM_TOKEN}`;
+const ENTRIES_URL = `https://brium.me/api/entries.json?worker_id=${BRIUM_WORKER_ID}&since=2015-04-01&access_token=${BRIUM_TOKEN}`;
 const MESSAGE_URL = `https://brium.me/api/messages?access_token=${BRIUM_TOKEN}`;
 
 const log = (msg) => console.log(`${Math.round(new Date().getTime() /1000)} | ${msg}`);
@@ -41,20 +41,21 @@ export default class BriumClient extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      refreshing: false,
       loaded: false,
       currentActivity: { loaded: false }
     };
   }
 
   componentDidMount() {
-    this.loadKeywords();
+    this.loadKeywords().done();
     this.loadCurrentActivity();
   }
 
   sendMessage(msg) {
     return fetch(MESSAGE_URL, {method: 'POST', body: msg})
       .then((response) => {
-        log(`Received response from sendMessage: ${response}`)
+        log(`Received response from sendMessage: ${response}`);
         return response.text();
       });
   }
@@ -82,14 +83,13 @@ export default class BriumClient extends Component {
   }
 
   loadKeywords() {
-    this.fetchEntries()
+    return this.fetchEntries()
       .then((responseData) => {
         this.setState({
-          keywords: responseData.map((e) => e.record).reverse().unique().slice(0,5),
+          keywords: responseData.map((e) => e.record).reverse().unique().slice(0,10),
           loaded: true,
         });
-      })
-      .done();
+      });
   }
 
   fetchEntries() {
@@ -101,10 +101,14 @@ export default class BriumClient extends Component {
     if (!this.state.loaded) {
       return this.renderLoadingView();
     }
+    let currentActivity = <CurrentActivity activity={this.state.currentActivity} />;
     return (
       <View style={styles.container}>
-        <CurrentActivity activity={this.state.currentActivity} />
-        <KeywordsList keywords={this.state.keywords} onReport={this.handleReport.bind(this)} />
+        <KeywordsList keywords={this.state.keywords}
+                      onReport={this.handleReport.bind(this)}
+                      onRefresh={this.handleRefresh.bind(this)}
+                      refreshing={this.state.refreshing}
+                      header={currentActivity}/>
       </View>
     );
   }
@@ -112,20 +116,26 @@ export default class BriumClient extends Component {
   renderLoadingView() {
     return (
       <View style={styles.container}>
-        <Text>Loading worker {BRIUM_WORKER_ID}...</Text>
+        <Text>Loading your recent activities</Text>
       </View>
     );
   }
 
   handleReport(keyword) {
     log(`Reporting ${keyword}`);
+    this.setState({refreshing: true});
     this.sendMessage(keyword)
-      .then((r) => {
-        log(r);
-        return r;
-      })
-      // .then(this.loadCurrentActivity.bind(this))
+      .then(this.loadCurrentActivity.bind(this))
+      .then(() => this.setState({refreshing: false}))
       .done();
   }
 
+  handleRefresh() {
+    log("Refreshing list of keywords");
+    this.setState({refreshing: true});
+    this.loadKeywords()
+      .then(this.loadCurrentActivity.bind(this))
+      .then(() => this.setState({refreshing: false}))
+      .done();
+  }
 }

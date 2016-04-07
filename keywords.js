@@ -4,16 +4,19 @@ import React, {
   Text,
   ListView,
   View,
-  TouchableHighlight
+  TouchableHighlight,
+  RefreshControl
 } from 'react-native';
 
 const styles = StyleSheet.create({
   item: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 6
   },
   name: {
+    textAlign: 'center'
   },
   list: {
     flex: 1
@@ -32,13 +35,21 @@ export default class KeywordsList extends Component {
   }
 
   render() {
+    let refresh = <RefreshControl refreshing={this.props.refreshing} onRefresh={this.onRefresh.bind(this)} />;
     return (
       <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this.renderKeyword.bind(this)}
-        style={styles.list}
-      />
+         dataSource={this.state.dataSource}
+         renderRow={this.renderKeyword.bind(this)}
+         style={styles.list}
+         renderHeader={() => this.props.header}
+         refreshControl={refresh} />
     );
+  }
+
+  onRefresh() {
+    if (this.props.onRefresh) {
+      this.props.onRefresh();
+    }
   }
 
   renderKeyword(keyword) {
